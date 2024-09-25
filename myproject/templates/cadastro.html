@@ -4,7 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select, button {
+            padding: 8px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #333;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
+
 <body>
 {% extends "index.html" %}
 
@@ -30,5 +94,120 @@
 
 
 {% endblock %}   
+
+<header>
+    <h1>Controle de Estoque</h1>
+</header>
+
+<main>
+    <h2>Adicionar Produto</h2>
+    <form id="addProductForm">
+        <label for="productName">Nome do Produto:</label>
+        <input type="text" id="productName" name="productName" required>
+
+        <label for="productCategory">Categoria:</label>
+        <select id="productCategory" name="productCategory" required>
+            <option value="games">Games</option>
+            <option value="acessorios">Acessórios</option>
+            <option value="hardware">Hardware</option>
+            <option value="utilitarios">Utilitários</option>
+        </select>
+
+        <label for="productQuantity">Quantidade:</label>
+        <input type="number" id="productQuantity" name="productQuantity" required>
+
+        <label for="productPrice">Preço (R$):</label>
+        <input type="number" step="0.01" id="productPrice" name="productPrice" required>
+
+        <button type="submit">Adicionar Produto</button>
+    </form>
+
+    <h2>Lista de Produtos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            <!-- Aqui os produtos serão inseridos dinamicamente -->
+        </tbody>
+    </table>
+</main>
+
+<script>
+    const productForm = document.getElementById('addProductForm');
+    const productTableBody = document.getElementById('productTableBody');
+
+    let products = [];
+
+    productForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Coletar os dados do formulário
+        const productName = document.getElementById('productName').value;
+        const productCategory = document.getElementById('productCategory').value;
+        const productQuantity = document.getElementById('productQuantity').value;
+        const productPrice = document.getElementById('productPrice').value;
+
+        // Adicionar o novo produto ao array
+        const newProduct = {
+            name: productName,
+            category: productCategory,
+            quantity: productQuantity,
+            price: productPrice
+        };
+        products.push(newProduct);
+
+        // Limpar o formulário
+        productForm.reset();
+
+        // Atualizar a tabela
+        updateProductTable();
+    });
+
+    function updateProductTable() {
+        productTableBody.innerHTML = '';
+
+        products.forEach((product, index) => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${product.name}</td>
+                <td>${product.category}</td>
+                <td>${product.quantity}</td>
+                <td>R$ ${product.price}</td>
+                <td>
+                    <button onclick="editProduct(${index})">Editar</button>
+                    <button onclick="deleteProduct(${index})">Excluir</button>
+                </td>
+            `;
+
+            productTableBody.appendChild(row);
+        });
+    }
+
+    function editProduct(index) {
+        const product = products[index];
+        document.getElementById('productName').value = product.name;
+        document.getElementById('productCategory').value = product.category;
+        document.getElementById('productQuantity').value = product.quantity;
+        document.getElementById('productPrice').value = product.price;
+
+        // Remover o produto original
+        products.splice(index, 1);
+        updateProductTable();
+    }
+
+    function deleteProduct(index) {
+        products.splice(index, 1);
+        updateProductTable();
+    }
+</script>
+
 </body>
 </html>
